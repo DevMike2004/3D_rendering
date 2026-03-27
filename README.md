@@ -2,7 +2,7 @@
 This is a work in progress but I will supply updates at each commit through the devLog.md
 
 OpenGL library framework being accessed by GLFW and the math is handled by GLM.
-GlAD is being used as the loader.
+GLAD is being used as the loader.
 
 
 The standalone files in the root of this repo are needed to run the openGL file.
