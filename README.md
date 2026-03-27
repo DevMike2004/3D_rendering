@@ -1,2 +1,2 @@
 # 3D_rendering
-This is a long term personal project to simulate the theory of relativity's affects of space.
+This is a work in progress but I will supply updates at each commit through the devLog.md
