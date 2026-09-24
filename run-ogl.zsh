@@ -8,7 +8,7 @@ OUTPUT="grav_sim"
 
 MACOS_VER="26.0";
 
-echo "🚀 Building for macOS Tahoe..."
+echo "Building for macOS Tahoe..."
 
 # 2. Compile glad.c (C only)
 # We compile to an object file (.o) so it doesn't care about C++17 flags
@@ -29,11 +29,11 @@ clang++ -std=c++17 \
 # 4. Cleanup and Run
 if [ $? -eq 0 ]; then
     rm glad.o
-    echo "✅ Build Successful! Launching..."
+    echo "Build Successful! Launching..."
     echo "------------------------------------"
     ./"$OUTPUT"
 else
     rm -f glad.o
-    echo "❌ Build Failed."
+    echo "Build Failed."
 fi
 
