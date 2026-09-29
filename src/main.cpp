@@ -32,6 +32,7 @@ float lastFrame = 0.0f;
 
 // 
 std::vector<float> generateCircle(float cx, float cy, float radius, int segments);
+std::vector<float> generateSphere(float cx, float cy, float cz, float radius, int segments);
 
 // the functions needed (defined at bottom of file)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -94,25 +95,57 @@ int main() {
 
 
 
+    unsigned int segments = 64;
     // unit circle at the origin -- move/scale it with the model matrix
-    std::vector<float> circleVerts = generateCircle(0.0f, 0.0f, 1.0f, 64);
+    std::vector<float> sphereVerts = generateSphere(0.0f, 0.0f, 0.0f, 1.0f, segments);
+    std::vector<unsigned int> sphereIndices;
+
+    int stacks   = segments / 2;     // rings pole-to-pole
+    int sectors  = segments;         // points around each ring
+    int stride   = segments + 1;     // points PER ring (the closing-duplicate column)
+
+    for (int i = 0; i < stacks; ++i) {          // note: < , stop one short
+        for (int j = 0; j < sectors; ++j) {     // each patch reaches to i+1, j+1
+
+            unsigned int topLeft     = i * stride + j;
+            unsigned int topRight    = i * stride + (j + 1);
+            unsigned int bottomLeft  = (i + 1) * stride + j;
+            unsigned int bottomRight = (i + 1) * stride + (j + 1);
+
+            // triangle 1
+            sphereIndices.push_back(topLeft);
+            sphereIndices.push_back(bottomLeft);
+            sphereIndices.push_back(topRight);
+
+            // triangle 2
+            sphereIndices.push_back(topRight);
+            sphereIndices.push_back(bottomLeft);
+            sphereIndices.push_back(bottomRight);
+        }
+    }
 
 
 
     // vertex buffer and array objects
-    unsigned int VBO, VAO;
+    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, circleVerts.size() * sizeof(float),
-                 circleVerts.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sphereVerts.size() * sizeof(float),
+                 sphereVerts.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphereIndices.size() * sizeof(unsigned int),
+            sphereIndices.data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    const GLsizei vertexCount = (GLsizei)(circleVerts.size() / 3);
+    const GLsizei vertexCount = (GLsizei)(sphereVerts.size() / 3);
 
 
 
@@ -143,8 +176,10 @@ int main() {
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
 
+
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLE_FAN, 0, vertexCount);
+        glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
+        //glDrawArrays(GL_POINTS, 0, vertexCount);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -290,6 +325,27 @@ std::vector<float> generateCircle(float cx, float cy, float radius, int segments
         verts.push_back(cx + radius * cosf(angle));
         verts.push_back(cy + radius * sinf(angle));
         verts.push_back(0.0f);
+    }
+
+    return verts;
+}
+
+std::vector<float> generateSphere(float cx, float cy, float cz, float radius, int segments) {
+    
+    std::vector<float> verts;
+    verts.reserve((segments + 1) * (segments /2 + 1) * 3);
+
+    for (int i = 0; i <= segments/2; ++i){
+        float stackAngle = (float)M_PI * i / (segments / 2.0f);
+        float ringRadius = radius * sin(stackAngle);
+        float height = radius * cos(stackAngle);
+
+        for (int j = 0; j <= segments; ++j) {
+            float angle = 2.0f * (float)M_PI * j / segments;
+            verts.push_back(ringRadius * cosf(angle));
+            verts.push_back(ringRadius * sinf(angle));
+            verts.push_back(height);
+        }
     }
 
     return verts;
