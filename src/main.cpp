@@ -30,6 +30,7 @@ float lastY = WIN_HEIGHT / 2.0f;
 float deltaTime = 0.0f;   // seconds since last frame
 float lastFrame = 0.0f;
 
+// 
 std::vector<float> generateCircle(float cx, float cy, float radius, int segments);
 
 // the functions needed (defined at bottom of file)
@@ -130,7 +131,7 @@ int main() {
                                                 0.1f, 100.0f);
 
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(0.5f));   // radius 0.5
+        model = glm::scale(model, glm::vec3(1.0f));   // radius 0.5
 
         ourShader.setMat4("model", model);
         ourShader.setMat4("view", view);
