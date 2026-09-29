@@ -81,9 +81,15 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    // load the shader files from source
+    // Loading the shader files
+
+    // Mac dir tree path
     Shader ourShader("/Users/michael/Code-Projects/C++/grav-proj/src/shaders/vertexShader.vert",
                      "/Users/michael/Code-Projects/C++/grav-proj/src/shaders/fragmentShader.frag");
+
+    // Linux dir tree path
+    //Shader ourShader("/home/mike/Projects/grav-proj/src/shaders/vertexShader.vert",
+    //                "/home/mike/Projects/grav-proj/src/shaders/fragmentShader.frag");
 
 
 
