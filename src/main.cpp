@@ -39,9 +39,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+static void glfwErrorCallback(int code, const char* desc);
 
 int main() {
 
+    glfwSetErrorCallback(glfwErrorCallback);
     // initializing glfw
     glfwInit();
     // setting the versions
@@ -51,6 +53,9 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     // this is needed only for mac os
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
+
+    glfwWindowHintString(GLFW_WAYLAND_APP_ID, "grav-proj");
 
     GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Window", NULL, NULL);
     if (window == NULL) {
@@ -85,12 +90,12 @@ int main() {
     // Loading the shader files
 
     // Mac dir tree path
-    Shader ourShader("/Users/michael/Code-Projects/C++/grav-proj/src/shaders/vertexShader.vert",
-                     "/Users/michael/Code-Projects/C++/grav-proj/src/shaders/fragmentShader.frag");
+    //Shader ourShader("/Users/michael/Code-Projects/C++/grav-proj/src/shaders/vertexShader.vert",
+    //                 "/Users/michael/Code-Projects/C++/grav-proj/src/shaders/fragmentShader.frag");
 
     // Linux dir tree path
-    //Shader ourShader("/home/mike/Projects/grav-proj/src/shaders/vertexShader.vert",
-    //                "/home/mike/Projects/grav-proj/src/shaders/fragmentShader.frag");
+    Shader ourShader("/home/mike/Projects/grav-proj/src/shaders/vertexShader.vert",
+                    "/home/mike/Projects/grav-proj/src/shaders/fragmentShader.frag");
 
 
 
@@ -349,4 +354,8 @@ std::vector<float> generateSphere(float cx, float cy, float cz, float radius, in
     }
 
     return verts;
+}
+
+static void glfwErrorCallback(int code, const char* desc) {
+    std::cerr << "GLFW error " << code << ": " << desc << std::endl;
 }

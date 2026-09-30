@@ -1,0 +1,11 @@
+
+Is this the correct working dir?: 
+
+***DIR: /home/mike/Projects/grav-proj/src
+
+    Y / N: Enter the file name: 
+Traceback (most recent call last):
+  File "/home/mike/scripts/run-ogl.py", line 13, in <module>
+    SRC_FILE = WD + "/" + input("Enter the file name: \n")
+                          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
