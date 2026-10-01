@@ -1,0 +1,10 @@
+-Isrc
+-xc++
+-std=c++17
+-isysroot
+-Iinclude
+-Isrc
+-I/usr/local/include
+-I/opt/homebrew/include
+-I.
+-DGL_SILENCE_DEPRECATION
