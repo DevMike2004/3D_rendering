@@ -228,6 +228,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     cam->processScroll((float)xoffset, (float)yoffset);
 }
 
+// same here
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     Camera* cam = (Camera*)glfwGetWindowUserPointer(window);
     cam->processMouse((float)xpos, (float)ypos);
