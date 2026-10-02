@@ -13,13 +13,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 const int WIN_WIDTH = 800, WIN_HEIGHT = 600;
+const float FOV = 45.0;
 
 // --- camera state -----------------------------------------------------------
 
-Camera cam = Camera(45.0, WIN_WIDTH, WIN_HEIGHT);
+Camera cam = Camera(FOV, WIN_WIDTH, WIN_HEIGHT);
 
-
-// 
 std::vector<float> generateCircle(float cx, float cy, float radius, int segments);
 std::vector<float> generateSphere(float cx, float cy, float cz, float radius, int segments);
 
@@ -83,10 +82,6 @@ int main() {
     Shader ourShader("/Users/michael/Code-Projects/C++/grav-proj/mac-src/shaders/vertexShader.vert",
                      "/Users/michael/Code-Projects/C++/grav-proj/mac-src/shaders/fragmentShader.frag");
 
-
-
-
-
     unsigned int segments = 64;
     // unit circle at the origin -- move/scale it with the model matrix
     std::vector<float> sphereVerts = generateSphere(0.0f, 0.0f, 0.0f, 1.0f, segments);
@@ -116,8 +111,6 @@ int main() {
         }
     }
 
-
-
     // vertex buffer and array objects
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -139,8 +132,6 @@ int main() {
 
     const GLsizei vertexCount = (GLsizei)(sphereVerts.size() / 3);
 
-
-
     // the actual window process
     while (!glfwWindowShouldClose(window)) {
 
@@ -159,15 +150,12 @@ int main() {
 
         glm::mat4 projection = glm::perspective(glm::radians(cam.fov),
                                                 (float)WIN_WIDTH / (float)WIN_HEIGHT,
-                                                0.1f, 100.0f);
-
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(1.0f));   // radius 0.5
 
         ourShader.setMat4("model", model);
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
-
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
@@ -187,7 +175,6 @@ int main() {
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
-
 
 // This generates a circle around a center point using TRIANGLES_FAN
 // later in the glDrawArrays function
@@ -234,6 +221,8 @@ static void glfwErrorCallback(int code, const char* desc) {
     std::cerr << "GLFW error " << code << ": " << desc << std::endl;
 }
 
+// reference the object via pointer passing in the window so that the c code
+// doesn't realize it's a class object
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     Camera* cam = (Camera*)glfwGetWindowUserPointer(window);
     cam->processScroll((float)xoffset, (float)yoffset);
