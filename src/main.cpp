@@ -40,7 +40,7 @@ int main() {
     // need this for all operating systems
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // if on mac, use this preprocessing method for mac os compatability.
+    // if on mac, use this preprocessing method for mac os compatibility.
     #ifdef __APPLE__
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     #endif
