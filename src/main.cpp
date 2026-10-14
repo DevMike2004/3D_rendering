@@ -28,6 +28,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 static void glfwErrorCallback(int code, const char* desc);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xoffset, double yoffset);
+std::vector<float> makeGrid(int cellsPerSide, float cellSize);
 
 int main() {
 
@@ -115,9 +116,15 @@ int main() {
         }
     }
 
+    std::vector<float> meshVerts = makeGrid(10.0f, 1.0f);
+
     // vertex buffer and array objects
     Entity sphere;
+
     sphere.genElementBufferObject(sphereVerts, sphereIndices, GL_STATIC_DRAW);
+     
+    Entity mesh;
+    mesh.genVertexBufferObject(meshVerts, GL_STATIC_DRAW);
 
     const GLsizei vertexCount = (GLsizei)(sphereVerts.size() / 3);
 
@@ -150,7 +157,10 @@ int main() {
         glBindVertexArray(sphere.VAO);
         glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
         //glDrawArrays(GL_POINTS, 0, vertexCount);
-
+        
+        glBindVertexArray(mesh.VAO);
+        glDrawArrays(GL_LINES, 0, meshVerts.size() / 3);
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -223,4 +233,23 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     Camera* cam = (Camera*)glfwGetWindowUserPointer(window);
     cam->processMouse((float)xpos, (float)ypos);
+}
+
+#include <vector>
+
+// Build grid lines on the XZ plane, centered at the origin.
+// cellSize stays constant; cellsPerSide controls overall size.
+std::vector<float> makeGrid(int cellsPerSide, float cellSize) {
+    std::vector<float> v;
+    float half = cellsPerSide * cellSize * 0.5f;
+
+    for (int i = 0; i <= cellsPerSide; ++i) {
+        float p = -half + i * cellSize;
+
+        // line parallel to Z
+        v.insert(v.end(), { p, -3.0f, -half,   p, -3.0f,  half });
+        // line parallel to X
+        v.insert(v.end(), { -half, -3.0f, p,   half, -3.0f, p });
+    }
+    return v;
 }
