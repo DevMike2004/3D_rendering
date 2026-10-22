@@ -87,9 +87,11 @@ int main() {
     Shader ourShader("shaders/vertexShader.vert",
                      "shaders/fragmentShader.frag");
 
-    unsigned int segments = 64;
+    const unsigned int segments = 64;
     // unit circle at the origin -- move/scale it with the model matrix
     std::vector<float> sphereVerts = generateSphere(0.0f, 0.0f, 0.0f, 1.0f, segments);
+    std::vector<float> sphereVerts2 = generateSphere(10.0f, 0.0f, 0.0f, 1.0f, segments);
+
     std::vector<unsigned int> sphereIndices;
 
     int stacks   = segments / 2;     // rings pole-to-pole
@@ -119,9 +121,10 @@ int main() {
     std::vector<float> meshVerts = makeGrid(10.0f, 1.0f);
 
     // vertex buffer and array objects
-    Entity sphere;
+    Entity sphere, sphere2;
 
     sphere.genElementBufferObject(sphereVerts, sphereIndices, GL_STATIC_DRAW);
+    sphere2.genElementBufferObject(sphereVerts2, sphereIndices, GL_STATIC_DRAW);
      
     Entity mesh;
     mesh.genVertexBufferObject(meshVerts, GL_STATIC_DRAW);
@@ -149,15 +152,21 @@ int main() {
                                                 0.1f, 100.0f);
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(1.0f));   // radius 0.5
+        
 
         ourShader.setMat4("model", model);
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
 
-        glBindVertexArray(sphere.VAO);
+        //glBindVertexArray(sphere.VAO);
+        //glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
+
+        ourShader.setVec4("color", glm::vec4(0.5f, 0.0f, 0.5f, 1.0f));
+        glBindVertexArray(sphere2.VAO);
         glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
         //glDrawArrays(GL_POINTS, 0, vertexCount);
-        
+
+        ourShader.setVec4("color", glm::vec4(0.5f, 0.5f, 0.0f, 1.0f));
         glBindVertexArray(mesh.VAO);
         glDrawArrays(GL_LINES, 0, meshVerts.size() / 3);
         
