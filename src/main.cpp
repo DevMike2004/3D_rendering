@@ -90,7 +90,7 @@ int main() {
     const unsigned int segments = 64;
     // unit circle at the origin -- move/scale it with the model matrix
     std::vector<float> sphereVerts = generateSphere(0.0f, 0.0f, 0.0f, 1.0f, segments);
-    std::vector<float> sphereVerts2 = generateSphere(10.0f, 0.0f, 0.0f, 1.0f, segments);
+    std::vector<float> sphereVerts2 = generateSphere(2.0f, 0.0f, 0.0f, 1.0f, segments);
 
     std::vector<unsigned int> sphereIndices;
 
@@ -134,6 +134,7 @@ int main() {
     // the actual window process
     while (!glfwWindowShouldClose(window)) {
 
+        float orbitRadius = 3.0f;
         float currentFrame = (float)glfwGetTime();
         cam.deltaTime = currentFrame - cam.lastFrame;
         cam.lastFrame = currentFrame;
@@ -151,25 +152,32 @@ int main() {
                                                 (float)WIN_WIDTH / (float)WIN_HEIGHT,
                                                 0.1f, 100.0f);
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(1.0f));   // radius 0.5
+        model = glm::scale(model, glm::vec3(0.5f));   // radius 0.5
         
 
         ourShader.setMat4("model", model);
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
 
+        float sphereX = (float)cosf(currentFrame) * orbitRadius;
+        float sphereZ = (float)sinf(currentFrame) * orbitRadius;
+        glm::vec3 spherePos = glm::vec3(sphereX, 0.0f, sphereZ);
+
+        model = glm::translate(model, spherePos);
+        ourShader.setMat4("model", model);
         glBindVertexArray(sphere.VAO);
         glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
 
-        ourShader.setVec4("color", glm::vec4(0.5f, 0.0f, 0.5f, 1.0f));
-        glBindVertexArray(sphere2.VAO);
-        glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
         //glDrawArrays(GL_POINTS, 0, vertexCount);
 
-        ourShader.setVec4("color", glm::vec4(0.5f, 0.5f, 0.0f, 1.0f));
+        ourShader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+        
+        model = glm::translate(model, glm::vec3(-3.0f));
+        model = glm::scale(model, glm::vec3(1.0f));
+        ourShader.setMat4("model", glm::mat4(1.0f));
         glBindVertexArray(mesh.VAO);
         glDrawArrays(GL_LINES, 0, meshVerts.size() / 3);
-        
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
