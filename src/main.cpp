@@ -158,8 +158,8 @@ int main() {
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
 
-        //glBindVertexArray(sphere.VAO);
-        //glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(sphere.VAO);
+        glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
 
         ourShader.setVec4("color", glm::vec4(0.5f, 0.0f, 0.5f, 1.0f));
         glBindVertexArray(sphere2.VAO);
@@ -218,9 +218,9 @@ std::vector<float> generateSphere(float cx, float cy, float cz, float radius, in
 
         for (int j = 0; j <= segments; ++j) {
             float angle = 2.0f * (float)M_PI * j / segments;
-            verts.push_back(ringRadius * cosf(angle));
-            verts.push_back(ringRadius * sinf(angle));
-            verts.push_back(height);
+            verts.push_back(ringRadius * cosf(angle) + cx);
+            verts.push_back(ringRadius * sinf(angle) + cy);
+            verts.push_back(height + cz);
         }
     }
 
