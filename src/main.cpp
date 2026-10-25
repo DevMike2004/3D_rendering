@@ -123,11 +123,11 @@ int main() {
     // vertex buffer and array objects
     Entity sphere, sphere2;
 
-    sphere.genElementBufferObject(sphereVerts, sphereIndices, GL_STATIC_DRAW);
-    sphere2.genElementBufferObject(sphereVerts2, sphereIndices, GL_STATIC_DRAW);
+    sphere.genBufferObject(sphereVerts, GL_STATIC_DRAW, true, sphereIndices);
+    sphere2.genBufferObject(sphereVerts2, GL_STATIC_DRAW, true, sphereIndices);
      
     Entity mesh;
-    mesh.genVertexBufferObject(meshVerts, GL_STATIC_DRAW);
+    mesh.genBufferObject(meshVerts, GL_STATIC_DRAW, false);
 
     const GLsizei vertexCount = (GLsizei)(sphereVerts.size() / 3);
 
