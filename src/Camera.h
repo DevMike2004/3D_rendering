@@ -41,7 +41,7 @@ class Camera {
                 glfwSetWindowShouldClose(window, true);
 
             // scale by deltaTime so speed doesn't depend on framerate
-            const float cameraSpeed = 2.5f * deltaTime;
+            const float cameraSpeed = 5.0f * deltaTime;
 
             if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
                 cameraPos += cameraSpeed * cameraFront;

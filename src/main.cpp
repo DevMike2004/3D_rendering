@@ -12,6 +12,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 const int WIN_WIDTH = 800, WIN_HEIGHT = 600;
 const float FOV = 45.0;
@@ -21,14 +22,12 @@ const float FOV = 45.0;
 Camera cam = Camera(FOV, WIN_WIDTH, WIN_HEIGHT);
 
 std::vector<float> generateCircle(float cx, float cy, float radius, int segments);
-std::vector<float> generateSphere(float cx, float cy, float cz, float radius, int segments);
 
 // the functions needed (defined at bottom of file)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 static void glfwErrorCallback(int code, const char* desc);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xoffset, double yoffset);
-std::vector<float> makeGrid(int cellsPerSide, float cellSize);
 
 int main() {
 
@@ -89,8 +88,6 @@ int main() {
 
     const unsigned int segments = 64;
     // unit circle at the origin -- move/scale it with the model matrix
-    std::vector<float> sphereVerts = generateSphere(0.0f, 0.0f, 0.0f, 1.0f, segments);
-    std::vector<float> sphereVerts2 = generateSphere(2.0f, 0.0f, 0.0f, 1.0f, segments);
 
     std::vector<unsigned int> sphereIndices;
 
@@ -118,15 +115,18 @@ int main() {
         }
     }
 
-    std::vector<float> meshVerts = makeGrid(10.0f, 1.0f);
 
     // vertex buffer and array objects
-    Entity sphere, sphere2;
+    Entity sphere, sphere2, mesh;
+
+    std::vector<float> sphereVerts = sphere.generateSphere(std::vector<float> {0.0f, 0.0f, 0.0f},
+            1.0f, segments);
+    std::vector<float> sphereVerts2 = sphere2.generateSphere(std::vector<float> {2.0f, 0.0f, 2.0f},
+            1.0f, segments);
+    std::vector<float> meshVerts = mesh.makeGrid(30.0f, 1.0f);
 
     sphere.genBufferObject(sphereVerts, GL_STATIC_DRAW, true, sphereIndices);
     sphere2.genBufferObject(sphereVerts2, GL_STATIC_DRAW, true, sphereIndices);
-     
-    Entity mesh;
     mesh.genBufferObject(meshVerts, GL_STATIC_DRAW, false);
 
     const GLsizei vertexCount = (GLsizei)(sphereVerts.size() / 3);
@@ -161,9 +161,10 @@ int main() {
 
         float sphereX = (float)cosf(currentFrame) * orbitRadius;
         float sphereZ = (float)sinf(currentFrame) * orbitRadius;
-        glm::vec3 spherePos = glm::vec3(sphereX, 0.0f, sphereZ);
+        glm::vec3 sphereTranslate = glm::vec3(sphereX, 0.0f, sphereZ);
+        std::cout << glm::to_string(sphereTranslate) << std::endl;
 
-        model = glm::translate(model, spherePos);
+        model = glm::translate(model, sphereTranslate);
         ourShader.setMat4("model", model);
         glBindVertexArray(sphere.VAO);
         glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
@@ -214,26 +215,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 //    return verts;
 //}
 
-std::vector<float> generateSphere(float cx, float cy, float cz, float radius, int segments) {
-    
-    std::vector<float> verts;
-    verts.reserve((segments + 1) * (segments /2 + 1) * 3);
-
-    for (int i = 0; i <= segments/2; ++i){
-        float stackAngle = (float)M_PI * i / (segments / 2.0f);
-        float ringRadius = radius * sin(stackAngle);
-        float height = radius * cos(stackAngle);
-
-        for (int j = 0; j <= segments; ++j) {
-            float angle = 2.0f * (float)M_PI * j / segments;
-            verts.push_back(ringRadius * cosf(angle) + cx);
-            verts.push_back(ringRadius * sinf(angle) + cy);
-            verts.push_back(height + cz);
-        }
-    }
-
-    return verts;
-}
 
 static void glfwErrorCallback(int code, const char* desc) {
     std::cerr << "GLFW error " << code << ": " << desc << std::endl;
@@ -256,17 +237,3 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
 // Build grid lines on the XZ plane, centered at the origin.
 // cellSize stays constant; cellsPerSide controls overall size.
-std::vector<float> makeGrid(int cellsPerSide, float cellSize) {
-    std::vector<float> v;
-    float half = cellsPerSide * cellSize * 0.5f;
-
-    for (int i = 0; i <= cellsPerSide; ++i) {
-        float p = -half + i * cellSize;
-
-        // line parallel to Z
-        v.insert(v.end(), { p, -3.0f, -half,   p, -3.0f,  half });
-        // line parallel to X
-        v.insert(v.end(), { -half, -3.0f, p,   half, -3.0f, p });
-    }
-    return v;
-}
