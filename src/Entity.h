@@ -2,6 +2,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 class Entity {
 
@@ -58,7 +60,6 @@ class Entity {
 
                 return verts;
             }
-
             std::vector<float> makeGrid(int cellsPerSide, float cellSize) {
                 std::vector<float> v;
                 float half = cellsPerSide * cellSize * 0.5f;
@@ -72,6 +73,14 @@ class Entity {
                     v.insert(v.end(), { -half, -3.0f, p,   half, -3.0f, p });
                 }
                 return v;
+            }
+
+            std::vector<float> getPos(std::vector<float> positionVector, glm::vec3 translationVector) {
+                std::vector<float> translation {translationVector.x, translationVector.y, translationVector.z};
+                for (int i = 0; i <= 2; ++i){
+                    positionVector[i] = positionVector[i] + translation[i];
+                }
+                return positionVector;
             }
 };
 

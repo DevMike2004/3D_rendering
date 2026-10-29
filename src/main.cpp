@@ -14,6 +14,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+
 const int WIN_WIDTH = 800, WIN_HEIGHT = 600;
 const float FOV = 45.0;
 
@@ -162,11 +163,21 @@ int main() {
         float sphereX = (float)cosf(currentFrame) * orbitRadius;
         float sphereZ = (float)sinf(currentFrame) * orbitRadius;
         glm::vec3 sphereTranslate = glm::vec3(sphereX, 0.0f, sphereZ);
-        std::cout << glm::to_string(sphereTranslate) << std::endl;
+
+        std::vector<float> pos = sphere2.getPos(sphere.position, sphereTranslate);
+        auto point = pos.begin();
+
+        while (point != pos.end() + 1){
+            if (point == pos.begin()) std::cout << '[';
+
+            point == pos.end() ? std::cout << ']' << std::endl : std::cout << *point << ", ";
+            ++point;
+        }
+
 
         model = glm::translate(model, sphereTranslate);
         ourShader.setMat4("model", model);
-        glBindVertexArray(sphere.VAO);
+        glBindVertexArray(sphere2.VAO);
         glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
 
         //glDrawArrays(GL_POINTS, 0, vertexCount);
