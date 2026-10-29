@@ -46,6 +46,8 @@ int main() {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     #endif
 
+    // allows identification of the window ID when using something like wayland 
+    // I had to do this for my linux distro to allow the tiling window manager to set the window size
     glfwWindowHintString(GLFW_WAYLAND_APP_ID, "grav-proj");
 
     GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Window", NULL, NULL);
@@ -122,7 +124,7 @@ int main() {
 
     std::vector<float> sphereVerts = sphere.generateSphere(std::vector<float> {0.0f, 0.0f, 0.0f},
             1.0f, segments);
-    std::vector<float> sphereVerts2 = sphere2.generateSphere(std::vector<float> {2.0f, 0.0f, 2.0f},
+    std::vector<float> sphereVerts2 = sphere2.generateSphere(std::vector<float> {5.0f, 0.0f, 0.0f},
             1.0f, segments);
     std::vector<float> meshVerts = mesh.makeGrid(30.0f, 1.0f);
 
@@ -164,7 +166,8 @@ int main() {
         float sphereZ = (float)sinf(currentFrame) * orbitRadius;
         glm::vec3 sphereTranslate = glm::vec3(sphereX, 0.0f, sphereZ);
 
-        std::vector<float> pos = sphere2.getPos(sphere.position, sphereTranslate);
+        model = sphere2.getPos(sphereTranslate, model);
+        auto pos = std::vector<float> {model[3][0], model[3][1], model[3][2]};
         auto point = pos.begin();
 
         while (point != pos.end() + 1){
@@ -175,7 +178,6 @@ int main() {
         }
 
 
-        model = glm::translate(model, sphereTranslate);
         ourShader.setMat4("model", model);
         glBindVertexArray(sphere2.VAO);
         glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);

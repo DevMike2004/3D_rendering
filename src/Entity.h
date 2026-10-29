@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Entity {
 
@@ -75,12 +76,19 @@ class Entity {
                 return v;
             }
 
-            std::vector<float> getPos(std::vector<float> positionVector, glm::vec3 translationVector) {
+            glm::mat4 getPos(glm::vec3 translationVector, glm::mat4 matrix) {
                 std::vector<float> translation {translationVector.x, translationVector.y, translationVector.z};
+
+                std::vector<float> pos = position;
+
                 for (int i = 0; i <= 2; ++i){
-                    positionVector[i] = positionVector[i] + translation[i];
+                    pos[i] += translation[i];
                 }
-                return positionVector;
+
+                matrix = glm::translate(matrix, glm::make_vec3(pos.data()));
+
+                glm::vec4 c = matrix * glm::vec4{pos[0], pos[1], pos[2], 1.0f};
+                return matrix;
             }
 };
 
