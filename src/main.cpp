@@ -167,16 +167,7 @@ int main() {
         glm::vec3 sphereTranslate = glm::vec3(sphereX, 0.0f, sphereZ);
 
         model = sphere2.getPos(sphereTranslate, model);
-        auto pos = std::vector<float> {model[3][0], model[3][1], model[3][2]};
-        auto point = pos.begin();
-
-        while (point != pos.end() + 1){
-            if (point == pos.begin()) std::cout << '[';
-
-            point == pos.end() ? std::cout << ']' << std::endl : std::cout << *point << ", ";
-            ++point;
-        }
-
+        sphere2.printPos(model);
 
         ourShader.setMat4("model", model);
         glBindVertexArray(sphere2.VAO);

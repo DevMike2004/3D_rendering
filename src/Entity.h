@@ -1,3 +1,5 @@
+
+#include <iostream>
 #include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -89,6 +91,17 @@ class Entity {
 
                 glm::vec4 c = matrix * glm::vec4{pos[0], pos[1], pos[2], 1.0f};
                 return matrix;
+            }
+
+            void printPos (glm::mat4 matrix){
+                auto pos = std::vector<float> {matrix[3][0], matrix[3][1], matrix[3][2]};
+
+                for (auto i = pos.begin(); i < pos.end(); ++i){
+                    if (i == pos.begin()) std::cout << '[';
+                    std::cout << *i;
+                    if (i != pos.end() - 1) std::cout << ", ";
+                    else std::cout << ']' << std::endl;
+                }
             }
 };
 
