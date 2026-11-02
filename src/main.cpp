@@ -123,9 +123,9 @@ int main() {
     Entity sphere, sphere2, mesh;
 
     std::vector<float> sphereVerts = sphere.generateSphere(std::vector<float> {0.0f, 0.0f, 0.0f},
-            1.0f, segments);
+            1.0f, segments, 10.0f);
     std::vector<float> sphereVerts2 = sphere2.generateSphere(std::vector<float> {5.0f, 0.0f, 0.0f},
-            1.0f, segments);
+            1.0f, segments, 10.0f);
     std::vector<float> meshVerts = mesh.makeGrid(30.0f, 1.0f);
 
     sphere.genBufferObject(sphereVerts, GL_STATIC_DRAW, true, sphereIndices);

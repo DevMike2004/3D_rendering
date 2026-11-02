@@ -14,6 +14,7 @@ class Entity {
             unsigned int VAO, VBO, EBO;
             bool VAOInitialized = false;
             std::vector<float> position;
+            float mass = 0;
 
             void genBufferObject(std::vector<float> verts, 
                     GLenum usage, bool ElementBufferCheck, 
@@ -41,7 +42,7 @@ class Entity {
                 glEnableVertexAttribArray(0);
             }
 
-            std::vector<float> generateSphere(std::vector<float> pos, float radius, int segments) {
+            std::vector<float> generateSphere(std::vector<float> pos, float radius, int segments, float objectMass) {
                 
                 position = pos;
 
@@ -60,9 +61,11 @@ class Entity {
                         verts.push_back(height + pos[2]);
                     }
                 }
+                mass = objectMass;
 
                 return verts;
             }
+
             std::vector<float> makeGrid(int cellsPerSide, float cellSize) {
                 std::vector<float> v;
                 float half = cellsPerSide * cellSize * 0.5f;
@@ -78,7 +81,7 @@ class Entity {
                 return v;
             }
 
-            glm::mat4 getPos(glm::vec3 translationVector, glm::mat4 matrix) {
+            glm::mat4 getPos(glm::vec3 translationVector, glm::mat4 &matrix) {
                 std::vector<float> translation {translationVector.x, translationVector.y, translationVector.z};
 
                 std::vector<float> pos = position;
@@ -103,24 +106,47 @@ class Entity {
                     else std::cout << ']' << std::endl;
                 }
             }
+
+            void setMass (float objectMass){
+                mass = objectMass;
+            }
+
+            /* 
+             * implementation of change in velocity due to gravity
+             * Going to have to calc velocity using most basic function
+             * a = G * mass / r^2
+             * then use accel to find change in velocity
+             * dv = a * dt     (change in vel = accel * change in time)
+             * dx = v * dt     (change in pos = vel * change in time)
+             *
+             * So if i get the distance of the two objects by subtracting their pos's
+             * Then, I divide that distance by itself to get a vector with the direction of movement
+             * I can then calculate the change in velocity using this vector multiplied by the strength (calc above)
+             * Then, I multiply by delta time to get delta velocity
+             * Then once again by delta time to get change in position. 
+             * Then just add that to the position vector too get the new position.
+             */
+            
+
+            glm::vec3 calcPosDueToGrav(glm::vec3 attractorPos, glm::vec3 objectPos, float massOfAttractor, float time) {
+
+                float startTime = time;
+                const float gravity = 1.0f;
+
+
+                glm::vec3 distance = attractorPos - objectPos;
+
+                // this returns the direction of the movement in vector form
+                auto r = glm::length(distance);
+                
+                auto force = gravity * attractorPos / (r * r);
+
+                // implement delta velocity
+
+                // temp return
+                return distance; 
+            }
+
+
 };
 
-// *** work in progress ***
-
-//auto calcAccel = [](float force, float mass){ return force/mass; };
-//
-//auto calcNewVelocity = [](float oldV, float accel, float delta){
-//    return oldV + (accel * delta); 
-//};
-//
-//auto calcNewPos = [](float oldPos, float velocity, float delta){
-//    return oldPos + (velocity * delta); 
-//};
-//
-//float calcPosFromGravity (float G, float mass1, float mass2, float radius){
-//    float force = (G * mass1 * mass2) / (radius * radius);
-//
-//    float accel = force / mass1;
-//
-//    float velocity = 
-//}
