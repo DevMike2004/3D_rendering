@@ -15,6 +15,7 @@ class Entity {
             bool VAOInitialized = false;
             std::vector<float> position;
             float mass = 0;
+            glm::vec3 velocity = {0.0f, 0.0f, 0.0f};
 
             void genBufferObject(std::vector<float> verts, 
                     GLenum usage, bool ElementBufferCheck, 
@@ -81,7 +82,7 @@ class Entity {
                 return v;
             }
 
-            glm::mat4 getPos(glm::vec3 translationVector, glm::mat4 &matrix) {
+            glm::mat4 getPosAfterTranslation(glm::vec3 translationVector, glm::mat4 &matrix) {
                 std::vector<float> translation {translationVector.x, translationVector.y, translationVector.z};
 
                 std::vector<float> pos = position;
@@ -126,25 +127,38 @@ class Entity {
              * Then once again by delta time to get change in position. 
              * Then just add that to the position vector too get the new position.
              */
-            
 
-            glm::vec3 calcPosDueToGrav(glm::vec3 attractorPos, glm::vec3 objectPos, float massOfAttractor, float time) {
+            glm::vec3 calcPosDueToGrav(glm::vec3 attractorPos, glm::vec3 objectPos, float massOfAttractor, float deltaTime) {
 
-                float startTime = time;
                 const float gravity = 1.0f;
 
-
-                glm::vec3 distance = attractorPos - objectPos;
-
+                glm::vec3 direction = attractorPos - objectPos;
                 // this returns the direction of the movement in vector form
-                auto r = glm::length(distance);
                 
-                auto force = gravity * attractorPos / (r * r);
+                auto r = glm::length(direction);
+                
+                auto accel = (gravity * massOfAttractor) / (r * r);
+                auto deltaVelocity = accel * deltaTime;
+                velocity += (direction * deltaVelocity);
 
-                // implement delta velocity
+                auto deltaPos = velocity * deltaTime;
 
-                // temp return
-                return distance; 
+                for (int i = 0; i <=2; ++i){
+                    std::cout << deltaVelocity << std::endl;
+                }
+
+                glm::vec3 pos = glm::make_vec3(position.data()) += deltaPos;
+                position[0] = pos[0];
+                position[1] = pos[1];
+                position[2] = pos[2];
+
+                return deltaPos;
+             }
+
+            void setVelocity(float velX, float velY, float velZ){
+                velocity[0] = velX;
+                velocity[1] = velY;
+                velocity[2] = velZ;
             }
 
 

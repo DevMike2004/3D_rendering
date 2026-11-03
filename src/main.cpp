@@ -134,6 +134,7 @@ int main() {
 
     const GLsizei vertexCount = (GLsizei)(sphereVerts.size() / 3);
 
+    sphere2.setVelocity(0.0f, 0.2f, 0.0f);
     // the actual window process
     while (!glfwWindowShouldClose(window)) {
 
@@ -164,10 +165,11 @@ int main() {
 
         float sphereX = (float)cosf(currentFrame) * orbitRadius;
         float sphereZ = (float)sinf(currentFrame) * orbitRadius;
-        glm::vec3 sphereTranslate = glm::vec3(sphereX, 0.0f, sphereZ);
+        // glm::vec3 sphereTranslate = glm::vec3(sphereX, 0.0f, sphereZ);
+        glm::vec3 gravTranslate = sphere2.calcPosDueToGrav(glm::vec3 {0.0f, 0.0f, 0.0f}, glm::make_vec3(sphere2.position.data()), 20.0f, cam.deltaTime);
 
-        model = sphere2.getPos(sphereTranslate, model);
-        sphere2.printPos(model);
+        model = sphere2.getPosAfterTranslation(gravTranslate, model);
+        // sphere2.printPos(model);
 
         ourShader.setMat4("model", model);
         glBindVertexArray(sphere2.VAO);
