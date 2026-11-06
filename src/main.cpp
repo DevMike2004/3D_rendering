@@ -136,6 +136,11 @@ int main() {
 
     sphere2.setVelocity(0.0f, 0.2f, 0.0f);
     // the actual window process
+
+    // model for the center sphere
+    glm::mat4 model2 = glm::mat4(1.0f);
+    model2 = glm::scale(model2, glm::vec3(0.01f));
+
     while (!glfwWindowShouldClose(window)) {
 
         float orbitRadius = 3.0f;
@@ -163,13 +168,11 @@ int main() {
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
 
-        float sphereX = (float)cosf(currentFrame) * orbitRadius;
-        float sphereZ = (float)sinf(currentFrame) * orbitRadius;
-        // glm::vec3 sphereTranslate = glm::vec3(sphereX, 0.0f, sphereZ);
-        glm::vec3 gravTranslate = sphere2.calcPosDueToGrav(glm::vec3 {0.0f, 0.0f, 0.0f}, glm::make_vec3(sphere2.position.data()), 20.0f, cam.deltaTime);
+        glm::vec3 gravTranslate = sphere2.calcPosDueToGrav(glm::vec3 {0.0f, 0.0f, 0.0f}, 
+                glm::make_vec3(sphere2.position.data()), 20.0f, cam.deltaTime);
 
-        model = sphere2.getPosAfterTranslation(gravTranslate, model);
-        // sphere2.printPos(model);
+        sphere2.getPosAfterTranslation(gravTranslate, model);
+        sphere2.printPosAfterTranslation(gravTranslate, model);
 
         ourShader.setMat4("model", model);
         glBindVertexArray(sphere2.VAO);
@@ -179,11 +182,15 @@ int main() {
 
         ourShader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
         
-        model = glm::translate(model, glm::vec3(-3.0f));
-        model = glm::scale(model, glm::vec3(1.0f));
         ourShader.setMat4("model", glm::mat4(1.0f));
         glBindVertexArray(mesh.VAO);
         glDrawArrays(GL_LINES, 0, meshVerts.size() / 3);
+
+
+        ourShader.setMat4("model", model2);
+        glBindVertexArray(sphere.VAO);
+        glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();

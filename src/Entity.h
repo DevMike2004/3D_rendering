@@ -16,6 +16,7 @@ class Entity {
             std::vector<float> position;
             float mass = 0;
             glm::vec3 velocity = {0.0f, 0.0f, 0.0f};
+            glm::mat4 model = glm::mat4(1.0f);
 
             void genBufferObject(std::vector<float> verts, 
                     GLenum usage, bool ElementBufferCheck, 
@@ -57,9 +58,9 @@ class Entity {
 
                     for (int j = 0; j <= segments; ++j) {
                         float angle = 2.0f * (float)M_PI * j / segments;
-                        verts.push_back(ringRadius * cosf(angle) + pos[0]);
-                        verts.push_back(ringRadius * sinf(angle) + pos[1]);
-                        verts.push_back(height + pos[2]);
+                        verts.push_back(ringRadius * cosf(angle));
+                        verts.push_back(ringRadius * sinf(angle));
+                        verts.push_back(height);
                     }
                 }
                 mass = objectMass;
@@ -82,23 +83,14 @@ class Entity {
                 return v;
             }
 
-            glm::mat4 getPosAfterTranslation(glm::vec3 translationVector, glm::mat4 &matrix) {
+            void printPosAfterTranslation(glm::vec3 translationVector, glm::mat4 matrix) {
                 std::vector<float> translation {translationVector.x, translationVector.y, translationVector.z};
 
                 std::vector<float> pos = position;
 
-                for (int i = 0; i <= 2; ++i){
-                    pos[i] += translation[i];
-                }
-
                 matrix = glm::translate(matrix, glm::make_vec3(pos.data()));
 
-                glm::vec4 c = matrix * glm::vec4{pos[0], pos[1], pos[2], 1.0f};
-                return matrix;
-            }
-
-            void printPos (glm::mat4 matrix){
-                auto pos = std::vector<float> {matrix[3][0], matrix[3][1], matrix[3][2]};
+                pos = std::vector<float> {matrix[3][0], matrix[3][1], matrix[3][2]};
 
                 for (auto i = pos.begin(); i < pos.end(); ++i){
                     if (i == pos.begin()) std::cout << '[';
@@ -108,25 +100,20 @@ class Entity {
                 }
             }
 
+            void getPosAfterTranslation(glm::vec3 translationVector, glm::mat4 &matrix) {
+                std::vector<float> translation {translationVector.x, translationVector.y, translationVector.z};
+
+                std::vector<float> pos = position;
+
+                matrix = glm::translate(matrix, glm::make_vec3(pos.data()));
+
+                pos = std::vector<float> {matrix[3][0], matrix[3][1], matrix[3][2]};
+
+            }
+
             void setMass (float objectMass){
                 mass = objectMass;
             }
-
-            /* 
-             * implementation of change in velocity due to gravity
-             * Going to have to calc velocity using most basic function
-             * a = G * mass / r^2
-             * then use accel to find change in velocity
-             * dv = a * dt     (change in vel = accel * change in time)
-             * dx = v * dt     (change in pos = vel * change in time)
-             *
-             * So if i get the distance of the two objects by subtracting their pos's
-             * Then, I divide that distance by itself to get a vector with the direction of movement
-             * I can then calculate the change in velocity using this vector multiplied by the strength (calc above)
-             * Then, I multiply by delta time to get delta velocity
-             * Then once again by delta time to get change in position. 
-             * Then just add that to the position vector too get the new position.
-             */
 
             glm::vec3 calcPosDueToGrav(glm::vec3 attractorPos, glm::vec3 objectPos, float massOfAttractor, float deltaTime) {
 
@@ -143,8 +130,9 @@ class Entity {
 
                 auto deltaPos = velocity * deltaTime;
 
+                // for testing purposed
                 for (int i = 0; i <=2; ++i){
-                    std::cout << deltaVelocity << std::endl;
+                    std::cout << attractorPos[i] << std::endl;
                 }
 
                 glm::vec3 pos = glm::make_vec3(position.data()) += deltaPos;
@@ -163,4 +151,8 @@ class Entity {
 
 
 };
-
+// functions to orbit around a spot in space
+// will be using later in more advanced orbiting functions
+        //float sphereX = (float)cosf(currentFrame) * orbitRadius;
+        //float sphereZ = (float)sinf(currentFrame) * orbitRadius;
+        // glm::vec3 sphereTranslate = glm::vec3(sphereX, 0.0f, sphereZ);
