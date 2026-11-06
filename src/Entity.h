@@ -11,12 +11,14 @@
 class Entity {
 
     public:
-            unsigned int VAO, VBO, EBO;
+            unsigned int VAO, VBO, EBO = NAN;
             bool VAOInitialized = false;
-            std::vector<float> position;
             float mass = 0;
-            glm::vec3 velocity = {0.0f, 0.0f, 0.0f};
+
             glm::mat4 model = glm::mat4(1.0f);
+            std::vector<float> position;
+            glm::vec3 velocity = {0.0f, 0.0f, 0.0f};
+            float accel = 0;
 
             void genBufferObject(std::vector<float> verts, 
                     GLenum usage, bool ElementBufferCheck, 
@@ -115,25 +117,25 @@ class Entity {
                 mass = objectMass;
             }
 
-            glm::vec3 calcPosDueToGrav(glm::vec3 attractorPos, glm::vec3 objectPos, float massOfAttractor, float deltaTime) {
+            glm::vec3 calcAccelDueToGrav(glm::vec3 attractorPos, glm::vec3 objectPos, float massOfAttractor) {
 
                 const float gravity = 1.0f;
 
-                glm::vec3 direction = attractorPos - objectPos;
-                // this returns the direction of the movement in vector form
+                // distance between the 2 objects
+                glm::vec3 distance = attractorPos - objectPos;
                 
-                auto r = glm::length(direction);
+                // the length of the distance itself (non vector form)
+                auto r = glm::length(distance);
+                // the direction of the objects movements
+                auto dir = distance / r;
                 
-                auto accel = (gravity * massOfAttractor) / (r * r);
-                auto deltaVelocity = accel * deltaTime;
-                velocity += (direction * deltaVelocity);
+                return dir * ((gravity * massOfAttractor) / (r * r + 0.1f));
+             }
+
+            glm::vec3 calcPosFromAccel(glm::vec3 accel, float deltaTime){
+                velocity += accel * deltaTime;
 
                 auto deltaPos = velocity * deltaTime;
-
-                // for testing purposed
-                for (int i = 0; i <=2; ++i){
-                    std::cout << attractorPos[i] << std::endl;
-                }
 
                 glm::vec3 pos = glm::make_vec3(position.data()) += deltaPos;
                 position[0] = pos[0];
@@ -141,7 +143,7 @@ class Entity {
                 position[2] = pos[2];
 
                 return deltaPos;
-             }
+            }
 
             void setVelocity(float velX, float velY, float velZ){
                 velocity[0] = velX;
