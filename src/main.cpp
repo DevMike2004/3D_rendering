@@ -121,14 +121,14 @@ int main() {
 
     // vertex buffer and array objects
     Entity sphere, sphere2, sphere3, mesh;
-        std::vector<Entity> entities = {sphere, sphere2, sphere3, mesh};
+    std::vector<Entity*> bodies = {&sphere, &sphere2, &sphere3}, entities = {&sphere, &sphere2, &sphere3, &mesh};
 
     std::vector<float> sphereVerts = sphere.generateSphere(std::vector<float> {10.0f, 0.0f, 2.0f},
-            0.05f, segments, 10.0f);
+            0.1f, segments, 10.0f);
     std::vector<float> sphereVerts2 = sphere2.generateSphere(std::vector<float> {5.0f, 0.0f, 5.0f},
-            0.5f, segments, 10.0f);
+            0.1f, segments, 10.0f);
     std::vector<float> sphereVerts3 = sphere3.generateSphere(std::vector<float> {4.0f, 5.0f, 3.0f},
-            0.05f, segments, 10.0f);
+            0.1f, segments, 10.0f);
     std::vector<float> meshVerts = mesh.makeGrid(30.0f, 1.0f);
 
     // generate the buffer objects
@@ -141,15 +141,15 @@ int main() {
 
     const GLsizei vertexCount = (GLsizei)(sphereVerts.size() / 3);
 
-    sphere2.setVelocity(2.0f, 2.0f, 0.0f);
+    sphere2.setMass(10.0f);
 
     // model for the attractor spheres
     // I want them to be small to create a reference point of attraction for the object bring effected
-    glm::mat4 model2 = glm::mat4(1.0f);
-    model2 = glm::translate(model2, glm::make_vec3(sphere.position.data()));
+    sphere.model = glm::translate(sphere.model, glm::make_vec3(sphere.position.data()));
+    sphere.setMass(20.0f);
 
-    glm::mat4 model3 = glm::mat4(1.0f);
-    model3 = glm::translate(model3, glm::make_vec3(sphere3.position.data()));
+    sphere3.model = glm::translate(sphere3.model, glm::make_vec3(sphere3.position.data()));
+    sphere3.setMass(4.0f);
 
     // the actual window process
     while (!glfwWindowShouldClose(window)) {
@@ -181,35 +181,27 @@ int main() {
         // the two return a struct that store the requires properties 
         // and I call the dir and accel from that struct
 
-        auto accel1 = sphere2.calcAccelDueToGrav(glm::make_vec3(sphere.position.data()), 
-                glm::make_vec3(sphere2.position.data()), 100.0f);
-        auto accel2 = sphere2.calcAccelDueToGrav(glm::make_vec3(sphere3.position.data()), 
-                glm::make_vec3(sphere2.position.data()), 100.0f);
-        auto gravTranslate = sphere2.calcPosFromAccel(accel1 + accel2, cam.deltaTime);
+        // Calculate Graivty and position of each entity present on the field
+        for (Entity *object : bodies){
+            glm::vec3 totAccel = glm::vec3(0.0f);
+            for(Entity *attract : bodies){
+                if (attract == object) continue;
+                totAccel += object->calcAccelDueToGrav(glm::make_vec3(attract->position.data()),
+                        glm::make_vec3(object->position.data()), object->mass);
+            }
+            object->calcPosFromAccel(totAccel, cam.deltaTime);
+            object->model = glm::translate(glm::mat4(1.0f), glm::make_vec3(object->position.data()));
 
-        sphere2.getPosAfterTranslation(gravTranslate, model);
-        sphere2.printPosAfterTranslation(gravTranslate, model);
-
-        ourShader.setMat4("model", model);
-        glBindVertexArray(sphere2.VAO);
-        glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
-
-        //glDrawArrays(GL_POINTS, 0, vertexCount);
+            ourShader.setMat4("model", object->model);
+            glBindVertexArray(object->VAO);
+            glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
+        }
 
         ourShader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
         
         ourShader.setMat4("model", glm::mat4(1.0f));
         glBindVertexArray(mesh.VAO);
         glDrawArrays(GL_LINES, 0, meshVerts.size() / 3);
-
-
-        ourShader.setMat4("model", model2);
-        glBindVertexArray(sphere.VAO);
-        glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
-        ourShader.setMat4("model",model3);
-        glBindVertexArray(sphere3.VAO);
-        glDrawElements(GL_TRIANGLES, (GLsizei)sphereIndices.size(), GL_UNSIGNED_INT, 0);
-
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -218,9 +210,9 @@ int main() {
     // delete the buffers and arrays from memory for each entity being generated
     // purely good practice. Don't actually need it
     for (auto e : entities){
-        glDeleteVertexArrays(1, &e.VAO);
-        glDeleteBuffers(1, &e.VBO);
-        if (e.EBO != NAN) glDeleteBuffers(1, &e.EBO);
+        glDeleteVertexArrays(1, &e->VAO);
+        glDeleteBuffers(1, &e->VBO);
+        if (e->EBO != NAN) glDeleteBuffers(1, &e->EBO);
     }
 
     glfwTerminate();

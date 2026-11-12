@@ -117,6 +117,10 @@ class Entity {
                 mass = objectMass;
             }
 
+            void setModel (glm::mat4 matrix){
+                model = matrix;
+            }
+
             glm::vec3 calcAccelDueToGrav(glm::vec3 attractorPos, glm::vec3 objectPos, float massOfAttractor) {
 
                 const float gravity = 1.0f;
