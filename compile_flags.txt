@@ -2,5 +2,6 @@
 -std=c++17
 -DGL_SILENCE_DEPRECATION
 -I/Users/michael/Code-Projects/C++/grav-proj/include
+-I/home/mike/Projects/grav-proj/include
 -I/opt/homebrew/include
 -isysroot/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk

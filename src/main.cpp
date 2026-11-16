@@ -9,6 +9,10 @@
 #include "Camera.h"
 #include "Entity.h"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -66,6 +70,8 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
 
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
 
     // hide + lock the cursor so the trackpad drives the look direction
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
