@@ -11,7 +11,7 @@
 class Entity {
 
     public:
-            unsigned int VAO, VBO, EBO = NAN;
+            unsigned int VAO, VBO, EBO = NAN, diameter = 0;
             bool VAOInitialized = false;
             float mass = 0;
 
@@ -46,9 +46,9 @@ class Entity {
                 glEnableVertexAttribArray(0);
             }
 
-            std::vector<float> generateSphere(std::vector<float> pos, float radius, int segments, float objectMass) {
+            std::vector<float> generateSphere(std::vector<float> position, float radius, int segments, float objectMass) {
                 
-                position = pos;
+                this->position = position;
 
                 std::vector<float> verts;
                 verts.reserve((segments + 1) * (segments /2 + 1) * 3);

@@ -70,8 +70,6 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
 
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
 
     // hide + lock the cursor so the trackpad drives the look direction
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -88,6 +86,7 @@ int main() {
 
 
     glEnable(GL_DEPTH_TEST);
+
 
     // Loading the shader files
 
@@ -157,6 +156,14 @@ int main() {
     sphere3.model = glm::translate(sphere3.model, glm::make_vec3(sphere3.position.data()));
     sphere3.setMass(4.0f);
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+
     // the actual window process
     while (!glfwWindowShouldClose(window)) {
 
@@ -169,6 +176,10 @@ int main() {
 
         glClearColor(.2f, .3f, .3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
         ourShader.use();
 
@@ -209,9 +220,20 @@ int main() {
         glBindVertexArray(mesh.VAO);
         glDrawArrays(GL_LINES, 0, meshVerts.size() / 3);
 
+        ImGui::Begin("WINDOW TIME");
+        ImGui::Text("Hi there floating balls of energy and mass!");
+        ImGui::End();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     // delete the buffers and arrays from memory for each entity being generated
     // purely good practice. Don't actually need it
@@ -267,7 +289,3 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     cam->processMouse((float)xpos, (float)ypos);
 }
 
-#include <vector>
-
-// Build grid lines on the XZ plane, centered at the origin.
-// cellSize stays constant; cellsPerSide controls overall size.
